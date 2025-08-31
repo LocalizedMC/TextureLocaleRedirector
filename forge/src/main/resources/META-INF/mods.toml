@@ -1,14 +1,14 @@
 modLoader = "javafml"
 loaderVersion = "[38,)"
-issueTrackerURL = "https://github.com/Wulian233/TextureLocaleRedirector/issues"
+issueTrackerURL = "https://github.com/LocalizedMC/TextureLocaleRedirector/issues"
 license = "MIT"
 
 [[mods]]
 modId = "texturelocaleredirector"
 version = "${version}"
 displayName = "Texture Locale Redirector"
-displayURL = "https://github.com/Wulian233/TextureLocaleRedirector"
-authors = "Wulian233"
+displayURL = "https://github.com/LocalizedMC/TextureLocaleRedirector"
+authors = "Wulian233, TexTrue"
 description = '''
 By extending the vanilla resource loading mechanism, it provides native multi-language texture support for resource packs, enabling localization of texture assets.
 '''
