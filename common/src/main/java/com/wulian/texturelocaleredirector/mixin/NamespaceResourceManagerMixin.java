@@ -17,72 +17,64 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 @Mixin(NamespaceResourceManager.class)
-public abstract class NamespaceResourceManagerMixin {
+public abstract class NamespaceResourceManagerMixin implements ResourceManager{
 
     @Inject(method = "findResources", at = @At("RETURN"))
     private void onFindResources(String startingPath, Predicate<Identifier> allowedPathPredicate,
                                  CallbackInfoReturnable<Map<Identifier, Resource>> cir) {
 
         String currentLang = LangTextureCache.getCurrentLanguage();
+
         if ("en_us".equals(currentLang)) {
             return;
         }
 
         Map<Identifier, Resource> originalResources = cir.getReturnValue();
-        if (originalResources.isEmpty()) return;
+        if (originalResources.isEmpty()) {
+            return;
+        }
 
         Map<Identifier, Resource> langSpecificResources = new HashMap<>();
-        String textureKey = "textures/";
 
         for (Map.Entry<Identifier, Resource> entry : originalResources.entrySet()) {
             Identifier originalId = entry.getKey();
+            String originalPath = originalId.getPath();
 
-            if (!allowedPathPredicate.test(originalId)) {
+            String[] parts = originalPath.split("/", 2);
+
+            if (parts.length < 2) {
                 continue;
             }
 
-            String path = originalId.getPath();
-            int idx = path.indexOf(textureKey);
-            if (idx == -1) {
-                continue; // 跳过不含 textures/ 的路径
-            }
-
-            String before = path.substring(0, idx + textureKey.length());
-            String after = path.substring(idx + textureKey.length());
+            String topLevelDir = parts[0];
+            String subPath = parts[1];
 
             // 避免重复，如zh_cn/zh_cn
-            if (after.startsWith(currentLang + "/")) {
+            if (subPath.startsWith(currentLang + "/")) {
                 continue;
             }
 
-            String langSpecificPath = before + currentLang + '/' + after;
+            String langSpecificPath = topLevelDir + "/" + currentLang + "/" + subPath;
             Identifier langId = new Identifier(originalId.getNamespace(), langSpecificPath);
 
             Boolean cache = LangTextureCache.get(langId);
             if (cache != null) {
                 if (cache) {
-                    try {
-                        ((ResourceManager) this).getResource(langId).ifPresent(resource -> {
-                            langSpecificResources.put(originalId, resource);
-                            TextureLocaleRedirector.LOGGER.info("Using cached localized texture: {}", langId);
-                        });
-                    } catch (Exception ignored) {}
+                    this.getResource(langId).ifPresent(resource -> {
+                        langSpecificResources.put(originalId, resource);
+                        TextureLocaleRedirector.LOGGER.info("Using cached localized resource: {}", langId);
+                    });
                 }
                 continue;
             }
 
-            try {
-                Optional<Resource> langResource = ((ResourceManager) this).getResource(langId);
-                if (langResource.isPresent()) {
-                    langSpecificResources.put(originalId, langResource.get());
-                    LangTextureCache.put(langId, true);
-                    TextureLocaleRedirector.LOGGER.info("Found and cached localized texture: {}", langId);
-                } else {
-                    LangTextureCache.put(langId, false);
-                }
-            } catch (Exception e) {
+            Optional<Resource> langResource = this.getResource(langId);
+            if (langResource.isPresent()) {
+                langSpecificResources.put(originalId, langResource.get());
+                LangTextureCache.put(langId, true);
+                TextureLocaleRedirector.LOGGER.info("Found and cached localized resource: {}", langId);
+            } else {
                 LangTextureCache.put(langId, false);
-                TextureLocaleRedirector.LOGGER.warn("Failed to load localized texture: {}", langId, e);
             }
         }
 
