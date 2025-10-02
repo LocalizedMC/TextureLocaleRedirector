@@ -23,7 +23,6 @@
     "texturelocaleredirector.mixins.json"
   ],
   "depends": {
-    "fabric": "*",
     "minecraft": ">=1.20.5 <1.21"
   }
 }
