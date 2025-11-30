@@ -3,7 +3,7 @@ architectury {
 }
 
 repositories {
-    maven { url "https://maven.ftb.dev/releases" }
+    maven { url = "https://maven.ftb.dev/releases" }
 }
 
 dependencies {
