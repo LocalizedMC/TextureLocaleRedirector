@@ -7,6 +7,7 @@ import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -17,15 +18,13 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 @Mixin(NamespaceResourceManager.class)
-public abstract class NamespaceResourceManagerMixin implements ResourceManager{
+public abstract class NamespaceResourceManagerMixin implements ResourceManager {
 
     @Inject(method = "findResources", at = @At("RETURN"))
     private void onFindResources(String startingPath, Predicate<Identifier> allowedPathPredicate,
                                  CallbackInfoReturnable<Map<Identifier, Resource>> cir) {
 
-        String currentLang = LangTextureCache.getCurrentLanguage();
-
-        if ("en_us".equals(currentLang)) {
+        if ("en_us".equals(LangTextureCache.getCurrentLanguage())) {
             return;
         }
 
@@ -38,48 +37,56 @@ public abstract class NamespaceResourceManagerMixin implements ResourceManager{
 
         for (Map.Entry<Identifier, Resource> entry : originalResources.entrySet()) {
             Identifier originalId = entry.getKey();
-            String originalPath = originalId.getPath();
+            Identifier langId = LangTextureCache.getLocalizedId(originalId);
 
-            String[] parts = originalPath.split("/", 2);
-
-            if (parts.length < 2) {
+            if (langId == null) {
                 continue;
             }
 
-            String topLevelDir = parts[0];
-            String subPath = parts[1];
-
-            // 避免重复，如zh_cn/zh_cn
-            if (subPath.startsWith(currentLang + "/")) {
-                continue;
-            }
-
-            String langSpecificPath = topLevelDir + "/" + currentLang + "/" + subPath;
-            Identifier langId = new Identifier(originalId.getNamespace(), langSpecificPath);
-
-            Boolean cache = LangTextureCache.get(langId);
-            if (cache != null) {
-                if (cache) {
-                    this.getResource(langId).ifPresent(resource -> {
-                        langSpecificResources.put(originalId, resource);
-                        TextureLocaleRedirector.LOGGER.info("Using cached localized resource: {}", langId);
-                    });
-                }
-                continue;
-            }
-
-            Optional<Resource> langResource = this.getResource(langId);
-            if (langResource.isPresent()) {
-                langSpecificResources.put(originalId, langResource.get());
-                LangTextureCache.put(langId, true);
-                TextureLocaleRedirector.LOGGER.info("Found and cached localized resource: {}", langId);
-            } else {
-                LangTextureCache.put(langId, false);
-            }
+            Optional<Resource> langResource = this.checkResourceAndCache(langId, originalId);
+            langResource.ifPresent(resource -> langSpecificResources.put(originalId, resource));
         }
 
         if (!langSpecificResources.isEmpty()) {
             originalResources.putAll(langSpecificResources);
+        }
+    }
+
+    @Inject(method = "getResource", at = @At("HEAD"), cancellable = true)
+    private void onGetResource(Identifier id, CallbackInfoReturnable<Optional<Resource>> cir) {
+
+        Identifier langId = LangTextureCache.getLocalizedId(id);
+        if (langId == null) {
+            return;
+        }
+
+        Optional<Resource> langResource = this.checkResourceAndCache(langId, id);
+        if (langResource.isPresent()) {
+            cir.setReturnValue(langResource);
+        }
+    }
+
+    @Unique
+    public Optional<Resource> checkResourceAndCache(Identifier langId, Identifier originalId) {
+        Boolean cache = LangTextureCache.get(langId);
+
+        if (cache != null) {
+            if (cache) {
+                return this.getResource(langId);
+            } else {
+                return Optional.empty();
+            }
+        }
+
+        Optional<Resource> langResource = this.getResource(langId);
+
+        if (langResource.isPresent()) {
+            LangTextureCache.put(langId, true);
+            TextureLocaleRedirector.LOGGER.info("Redirected resource {} -> {}", originalId, langId);
+            return langResource;
+        } else {
+            LangTextureCache.put(langId, false);
+            return Optional.empty();
         }
     }
 }

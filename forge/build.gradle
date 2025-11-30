@@ -29,13 +29,8 @@ loom {
     }
 }
 
-repositories {
-    maven { url = "https://maven.ftb.dev/releases" }
-}
-
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
-    modApi "dev.ftb.mods:ftb-quests-forge:${rootProject.ftb_quests_version}"
 
     common(project(path: ":common", configuration: "namedElements")) {
         transitive = false

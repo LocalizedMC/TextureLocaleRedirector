@@ -22,13 +22,9 @@ configurations {
     }
 }
 
-repositories {
-    maven { url = "https://maven.neoforged.net/releases/" }
-}
 
 dependencies {
     neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
-    modApi "dev.ftb.mods:ftb-quests-neoforge:${rootProject.ftb_quests_version}"
 
     common(project(path: ":common", configuration: "namedElements")) {
         transitive = false
