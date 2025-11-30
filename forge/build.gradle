@@ -3,16 +3,19 @@ architectury {
     forge()
 }
 
-project.archivesBaseName = rootProject.archivesBaseName + "-forge"
+base {
+    archivesName = rootProject.archives_base_name + "-forge"
+}
 
 configurations {
     common {
         canBeResolved = true
         canBeConsumed = false
     }
-    compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
-    developmentForge.extendsFrom common
+    compileClasspath.extendsFrom(common)
+    runtimeClasspath.extendsFrom(common)
+    developmentForge.extendsFrom(common)
+
     shadowBundle {
         canBeResolved = true
         canBeConsumed = false
@@ -27,37 +30,41 @@ loom {
 }
 
 repositories {
-    maven { url "https://maven.ftb.dev/releases" }
+    maven { url = "https://maven.ftb.dev/releases" }
 }
 
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
     modApi "dev.ftb.mods:ftb-quests-forge:${rootProject.ftb_quests_version}"
 
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowBundle(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+    common(project(path: ":common", configuration: "namedElements")) {
+        transitive = false
+    }
+    shadowBundle(project(path: ":common", configuration: "transformProductionNeoForge")) {
+        transitive = false
+    }
 }
 
 processResources {
-    inputs.property "version", project.version
+    inputs.property("version", project.version)
 
     filesMatching("META-INF/mods.toml") {
-        expand "version": project.version
+        expand(version: project.version)
     }
 }
 
 shadowJar {
-    exclude "fabric.mod.json"
-    exclude "architectury.common.json"
+    exclude("fabric.mod.json")
+    exclude("architectury.common.json")
 
     configurations = [project.configurations.shadowBundle]
     archiveClassifier.set("dev-shadow")
 }
 
 remapJar {
-    inputFile.set shadowJar.archiveFile
-    dependsOn shadowJar
-    archiveClassifier.set(null)
+    inputFile.set(shadowJar.archiveFile)
+    dependsOn(shadowJar)
+    archiveClassifier.set((String) null)
 }
 
 jar {
@@ -65,7 +72,7 @@ jar {
 }
 
 sourcesJar {
-    def commonSources = project(":common").sourcesJar
-    dependsOn commonSources
-    from commonSources.archiveFile.map { zipTree(it) }
+    def commonSources = project(":common").tasks.named("sourcesJar")
+    dependsOn(commonSources)
+    from(commonSources.flatMap { it.archiveFile }.map { zipTree(it) })
 }
