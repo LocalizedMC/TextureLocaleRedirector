@@ -31,4 +31,25 @@ public class LangTextureCache {
     public static String getCurrentLanguage() {
         return currentLanguage;
     }
+
+    public static Identifier getLocalizedId(Identifier originalId) {
+        String lang = currentLanguage;
+
+        String originalPath = originalId.getPath();
+
+        String texturePrefix = "textures/";
+        int index = originalPath.indexOf(texturePrefix);
+        if (index == -1) return null;
+
+        String before = originalPath.substring(0, index + texturePrefix.length());
+        String after  = originalPath.substring(index + texturePrefix.length());
+
+        // Avoid duplicate redirection textures/zh_cn/zh_cn/...
+        if (after.startsWith(lang + "/")) {
+            return null;
+        }
+
+        String localizedPath = before + lang + "/" + after;
+        return Identifier.of(originalId.getNamespace(), localizedPath);
+    }
 }

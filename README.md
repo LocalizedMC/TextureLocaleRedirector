@@ -53,16 +53,6 @@ ResourcePackName/
                     └── diamond_sword.png  # Replaced diamond sword texture
 ```
 
-## FTB Quests Support
-
-This mod also provides optional support for [FTB Quests](https://github.com/FTBTeam/FTB-Quests).  
-When FTB Quests is installed, images in the quest interface (`ChapterImage`) will
-also switch to the corresponding localized textures based on the current language.
-
-* Any images or icons used in quests can be replaced via resource packs.
-* If no localized texture is found, it will fall back to the default texture.
-* Implemented via a **Mixin plugin**, so this mod does not have a hard dependency on FTB Quests.
-
 ## Performance
 
 This mod is heavily optimized and should have negligible performance impact:
