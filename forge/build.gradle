@@ -14,7 +14,7 @@ configurations {
     }
     compileClasspath.extendsFrom(common)
     runtimeClasspath.extendsFrom(common)
-    developmentNeoForge.extendsFrom(common)
+    developmentForge.extendsFrom(common)
 
     shadowBundle {
         canBeResolved = true
@@ -35,7 +35,7 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) {
         transitive = false
     }
-    shadowBundle(project(path: ":common", configuration: "transformProductionNeoForge")) {
+    shadowBundle(project(path: ":common", configuration: "transformProductionForge")) {
         transitive = false
     }
 }
@@ -43,7 +43,7 @@ dependencies {
 processResources {
     inputs.property("version", project.version)
 
-    filesMatching("META-INF/forge.mods.toml") {
+    filesMatching("META-INF/mods.toml") {
         expand(version: project.version)
     }
 }
