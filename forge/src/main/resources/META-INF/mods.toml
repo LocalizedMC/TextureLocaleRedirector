@@ -17,6 +17,6 @@ logoFile = "assets/texturelocaleredirector/icon.png"
 [[dependencies.texturelocaleredirector]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20,1.20.5)"
+versionRange = "[1.20,1.20.3)"
 ordering = "NONE"
 side = "BOTH"
