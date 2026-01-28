@@ -1,53 +1,35 @@
 name: Build
-
-on: [ pull_request, push, workflow_dispatch ]
+on: [ pull_request, push ]
 
 jobs:
-  Build:
+  build:
+    strategy:
+      matrix:
+        java: [ 25 ]
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - name: checkout repository
+        uses: actions/checkout@v6
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - name: setup Gradle wrapper
+        uses: gradle/actions/setup-gradle@v4
         with:
-          distribution: 'temurin'
-          java-version: 21
+          gradle-version: 9.2.0
 
-      - name: Cache
-        uses: actions/cache@v4
+      - name: setup Java ${{ matrix.java }}
+        uses: actions/setup-java@v5
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            .gradle
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'build.gradle') }}
+          java-version: ${{ matrix.java }}
+          distribution: 'zulu'
 
-      - name: Build with Gradle
-        run: |
-          chmod +x gradlew
-          ./gradlew build
+      - name: make gradle wrapper executable
+        run: chmod +x ./gradlew
 
-      - name: Merge Fabric & Neoforge JARs
-        run: |
-          chmod +x gradlew
-          ./gradlew fusejars
+      - name: build
+        run: ./gradlew buildAndCollect
 
-      - name: Upload fabric artifacts
+      - name: capture build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: fabric-artifacts
-          path: ${{ github.workspace }}/fabric/build/libs
-
-      - name: Upload neoforge artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: neoforge-artifacts
-          path: ${{ github.workspace }}/neoforge/build/libs
-
-      - name: Upload merged artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: merged
-          path: ${{ github.workspace }}/build/merged/*
+          name: Artifacts
+          path: build/libs/

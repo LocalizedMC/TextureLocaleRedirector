@@ -1,4 +1,4 @@
 {
-  "fml.menu.mods.info.description.texturelocaleredirector": "支援按遊戲語言重定向資源路徑，實現多語言紋理載入",
-  "modmenu.descriptionTranslation.texturelocaleredirector": "支援按遊戲語言重定向資源路徑，實現多語言紋理載入"
+  "fml.menu.mods.info.description.texturelocaleredirector": "透過擴展原版的資源加載機制，為資源包提供了原生的多語言紋理支援，實現紋理資源的在地化。",
+  "modmenu.descriptionTranslation.texturelocaleredirector": "透過擴展原版的資源加載機制，為資源包提供了原生的多語言紋理支援，實現紋理資源的在地化。"
 }

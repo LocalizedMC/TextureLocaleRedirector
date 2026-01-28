@@ -15,7 +15,7 @@ logoFile = "assets/${id}/icon.png"
 
 [[dependencies.${id}]]
 modId = "minecraft"
-type = "required"
+mandatory = true
 versionRange = "${minecraft}"
 ordering = "NONE"
 side = "BOTH"
