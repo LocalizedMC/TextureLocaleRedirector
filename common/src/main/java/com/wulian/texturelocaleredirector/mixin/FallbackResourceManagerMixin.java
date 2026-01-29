@@ -1,15 +1,11 @@
 package com.wulian.texturelocaleredirector.mixin;
 
-import com.wulian.texturelocaleredirector.LangTextureCache;
+import com.wulian.texturelocaleredirector.TranslatableTextureCache;
 import com.wulian.texturelocaleredirector.TextureLocaleRedirector;
-import net.minecraft.resource.NamespaceResourceManager;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceManager;
-//? if >=1.21.11 {
+import net.minecraft.server.packs.resources.FallbackResourceManager;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.resources.Identifier;
-//?} else if >=1.20.6 && <=1.21.10 {
-/*import net.minecraft.resources.ResourceLocation;
-*///?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,29 +17,29 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-@Mixin(NamespaceResourceManager.class)
-public abstract class NamespaceResourceManagerMixin implements ResourceManager {
+@Mixin(FallbackResourceManager.class)
+public abstract class FallbackResourceManagerMixin implements ResourceManager {
 
-    @Inject(method = "findResources", at = @At("RETURN"))
-    private void onFindResources(
+    @Inject(method = "listResources", at = @At("RETURN"))
+    private void onListResources(
             String startingPath,
             Predicate<
-                    /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*ResourceLocation*/ /*?}*/
+                    /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*Identifier *//*?}*/
             > allowedPathPredicate,
             CallbackInfoReturnable<
                     Map<
-                            /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*ResourceLocation*/ /*?}*/,
+                            /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*Identifier *//*?}*/,
                             Resource
                     >
             > cir
     ) {
 
-        if ("en_us".equals(LangTextureCache.getCurrentLanguage())) {
+        if ("en_us".equals(TranslatableTextureCache.getCurrentLanguage())) {
             return;
         }
 
         Map<
-                /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*ResourceLocation*/ /*?}*/,
+                /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*Identifier *//*?}*/,
                 Resource
         > originalResources = cir.getReturnValue();
 
@@ -52,23 +48,23 @@ public abstract class NamespaceResourceManagerMixin implements ResourceManager {
         }
 
         Map<
-                /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*ResourceLocation*/ /*?}*/,
+                /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*Identifier *//*?}*/,
                 Resource
         > langSpecificResources = new HashMap<>();
 
         for (Map.Entry<
-                /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*ResourceLocation*/ /*?}*/,
+                /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*Identifier *//*?}*/,
                 Resource
         > entry : originalResources.entrySet()) {
 
             var originalId = entry.getKey();
-            var langId = LangTextureCache.getLocalizedId(originalId);
+            var langId = TranslatableTextureCache.getLocalizedId(originalId);
 
             if (langId == null) {
                 continue;
             }
 
-            Optional<Resource> langResource = this.checkResourceAndCache(langId, originalId);
+            Optional<Resource> langResource = this.textureLocaleRedirector$checkResourceAndCache(langId, originalId);
             langResource.ifPresent(resource -> langSpecificResources.put(originalId, resource));
         }
 
@@ -79,27 +75,27 @@ public abstract class NamespaceResourceManagerMixin implements ResourceManager {
 
     @Inject(method = "getResource", at = @At("HEAD"), cancellable = true)
     private void onGetResource(
-            /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*ResourceLocation*/ /*?}*/ id,
+            /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*Identifier *//*?}*/ id,
             CallbackInfoReturnable<Optional<Resource>> cir
     ) {
 
-        var langId = LangTextureCache.getLocalizedId(id);
+        var langId = TranslatableTextureCache.getLocalizedId(id);
         if (langId == null) {
             return;
         }
 
-        Optional<Resource> langResource = this.checkResourceAndCache(langId, id);
+        Optional<Resource> langResource = this.textureLocaleRedirector$checkResourceAndCache(langId, id);
         if (langResource.isPresent()) {
             cir.setReturnValue(langResource);
         }
     }
 
     @Unique
-    public Optional<Resource> checkResourceAndCache(
-            /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*ResourceLocation*/ /*?}*/ langId,
-            /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*ResourceLocation*/ /*?}*/ originalId
+    public Optional<Resource> textureLocaleRedirector$checkResourceAndCache(
+            /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*Identifier *//*?}*/ langId,
+            /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*Identifier *//*?}*/ originalId
     ) {
-        Boolean cache = LangTextureCache.get(langId);
+        Boolean cache = TranslatableTextureCache.get(langId);
 
         if (cache != null) {
             if (cache) {
@@ -112,11 +108,11 @@ public abstract class NamespaceResourceManagerMixin implements ResourceManager {
         Optional<Resource> langResource = this.getResource(langId);
 
         if (langResource.isPresent()) {
-            LangTextureCache.put(langId, true);
+            TranslatableTextureCache.put(langId, true);
             TextureLocaleRedirector.LOGGER.info("Redirected resource {} -> {}", originalId, langId);
             return langResource;
         } else {
-            LangTextureCache.put(langId, false);
+            TranslatableTextureCache.put(langId, false);
             return Optional.empty();
         }
     }

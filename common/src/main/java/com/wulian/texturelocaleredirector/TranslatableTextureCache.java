@@ -1,35 +1,23 @@
 package com.wulian.texturelocaleredirector;
 
-//? if >=1.21.11 {
 import net.minecraft.resources.Identifier;
-//?} else if >=1.20.6 && <=1.21.10 {
-/*import net.minecraft.resources.ResourceLocation;
-*///?}
 
 import java.lang.ref.SoftReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class LangTextureCache {
+public class TranslatableTextureCache {
 
-    private static final Map<
-            /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*ResourceLocation*/ /*?}*/
-            , SoftReference<Boolean>
-    > existsCache = new ConcurrentHashMap<>();
+    private static final Map<Identifier, SoftReference<Boolean>> existsCache = new ConcurrentHashMap<>();
 
     private static volatile String currentLanguage = "en_us";
 
-    public static Boolean get(
-            /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*ResourceLocation*/ /*?}*/ id
-    ) {
+    public static Boolean get(Identifier id) {
         SoftReference<Boolean> ref = existsCache.get(id);
         return ref != null ? ref.get() : null;
     }
 
-    public static void put(
-            /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*ResourceLocation*/ /*?}*/ id,
-            boolean exists
-    ) {
+    public static void put(Identifier id, boolean exists) {
         existsCache.put(id, new SoftReference<>(exists));
     }
 
@@ -45,11 +33,7 @@ public class LangTextureCache {
         return currentLanguage;
     }
 
-    public static
-    /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*ResourceLocation*/ /*?}*/
-    getLocalizedId(
-            /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*ResourceLocation*/ /*?}*/ originalId
-    ) {
+    public static Identifier getLocalizedId(Identifier originalId) {
         String lang = currentLanguage;
 
         String originalPath = originalId.getPath();
@@ -68,10 +52,10 @@ public class LangTextureCache {
 
         String localizedPath = before + lang + "/" + after;
 
-        //? if >=1.21.11 {
-        return Identifier.of(originalId.getNamespace(), localizedPath);
+        //? if >=1.21.1 {
+        return Identifier.fromNamespaceAndPath(originalId.getNamespace(), localizedPath);
         //?} else {
-        /*return new ResourceLocation(originalId.getNamespace(), localizedPath);
+        /*return new Identifier(originalId.getNamespace(), localizedPath);
         *///?}
     }
 }
