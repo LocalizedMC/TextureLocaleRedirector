@@ -2,23 +2,21 @@ package com.wulian.texturelocaleredirector;
 
 import net.minecraft.resources.Identifier;
 
-import java.lang.ref.SoftReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class TranslatableTextureCache {
+public final class TranslatableTextureCache {
 
-    private static final Map<Identifier, SoftReference<Boolean>> existsCache = new ConcurrentHashMap<>();
+    private static final Map<Identifier, Boolean> existsCache = new ConcurrentHashMap<>();
 
     private static volatile String currentLanguage = "en_us";
 
     public static Boolean get(Identifier id) {
-        SoftReference<Boolean> ref = existsCache.get(id);
-        return ref != null ? ref.get() : null;
+        return existsCache.get(id);
     }
 
     public static void put(Identifier id, boolean exists) {
-        existsCache.put(id, new SoftReference<>(exists));
+        existsCache.put(id, exists);
     }
 
     public static void clear() {

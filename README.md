@@ -1,5 +1,5 @@
 <div align="center"> 
-   <img height="128px" width="128px" alt="logo" src="./common/src/main/resources/assets/texturelocaleredirector/icon.png"/> 
+   <img height="128px" width="128px" alt="logo" src="./icon/icon.svg"/> 
    <h1>Texture Locale Redirector</h1>
 
 <a href="README_CN.md">中文</a> | English

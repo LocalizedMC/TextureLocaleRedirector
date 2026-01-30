@@ -53,7 +53,6 @@ loom {
 
 repositories {
     maven("https://jitpack.io")
-    maven("https://maven.terraformersmc.com/releases/")
     maven("https://maven.nucleoid.xyz/")
 }
 
