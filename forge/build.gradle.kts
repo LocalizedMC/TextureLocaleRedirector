@@ -19,12 +19,12 @@ architectury {
     forge()
 }
 
-val commonBundle: Configuration by configurations.creating {
+val commonBundle = configurations.create("commonBundle") {
     isCanBeConsumed = false
     isCanBeResolved = true
 }
 
-val shadowBundle: Configuration by configurations.creating {
+val shadowBundle = configurations.create("shadowBundle") {
     isCanBeConsumed = false
     isCanBeResolved = true
 }
