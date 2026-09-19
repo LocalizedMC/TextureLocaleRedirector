@@ -1,5 +1,5 @@
 plugins {
-    id("dev.architectury.loom")
+    id("dev.kikugie.loom-back-compat")
     id("architectury-plugin")
     id("com.gradleup.shadow")
     id("com.hypherionmc.modutils.modpublisher")
@@ -15,6 +15,7 @@ version = "${mod.version}+mc$minecraft"
 base.archivesName.set("${mod.id}-$loader")
 
 architectury {
+    if (loomx.isUnobfuscated) compileOnly()
     platformSetupLoomIde()
     forge()
 }
@@ -32,12 +33,10 @@ val shadowBundle = configurations.create("shadowBundle") {
 configurations {
     compileClasspath.get().extendsFrom(commonBundle)
     runtimeClasspath.get().extendsFrom(commonBundle)
-    get("developmentForge").extendsFrom(commonBundle)
+    findByName("developmentForge")?.extendsFrom(commonBundle)
 }
 
 loom {
-    silentMojangMappingsLicense()
-
     decompilers {
         get("vineflower").apply { // Adds names to lambdas - useful for mixins
             options.put("mark-corresponding-synthetics", "1")
@@ -45,9 +44,9 @@ loom {
     }
 
     runConfigs.all {
-        isIdeConfigGenerated = true
-        runDir = "../../../run"
-        vmArgs("-Dmixin.debug.export=true")
+        generateRunConfig.set(true)
+        runDirectory.set(file("../../../run"))
+        jvmArguments.add("-Dmixin.debug.export=true")
     }
 }
 
@@ -58,7 +57,7 @@ repositories {
 
 dependencies {
     minecraft("com.mojang:minecraft:$minecraft")
-    mappings(loom.officialMojangMappings())
+    loomx.applyMojangMappings()
     "forge"("net.minecraftforge:forge:$minecraft-${common.mod.dep("forge_loader")}")
 
     commonBundle(project(common.path, "namedElements")) { isTransitive = false }
@@ -69,7 +68,7 @@ java {
     withSourcesJar()
 
     val requiredJava = when {
-        stonecutter.current.parsed >= "26.1" -> JavaVersion.VERSION_25
+        stonecutter.current.parsed >= "26.3" -> JavaVersion.VERSION_25
         stonecutter.current.parsed >= "1.20.5" -> JavaVersion.VERSION_21
         else -> JavaVersion.VERSION_17
     }
@@ -78,18 +77,22 @@ java {
     sourceCompatibility = requiredJava
 }
 
-tasks.remapJar {
-    injectAccessWidener = true
-    inputFile = tasks.shadowJar.get().archiveFile
-    archiveClassifier = null
-    dependsOn(tasks.shadowJar)
-}
-
 tasks.shadowJar {
     configurations = listOf(shadowBundle)
-    archiveClassifier = "dev-shadow"
+    archiveClassifier = if (loomx.isUnobfuscated) null else "dev-shadow"
     exclude("fabric.mod.json", "architectury.common.json")
 }
+
+if (!loomx.isUnobfuscated) {
+    loomx.modJar.configure {
+        setProperty("inputFile", tasks.shadowJar.get().archiveFile)
+        archiveClassifier = null
+        dependsOn(tasks.shadowJar)
+    }
+}
+
+val outputJar = if (loomx.isUnobfuscated) tasks.shadowJar else loomx.modJar
+val outputSourcesJar = loomx.modSourcesJar
 
 tasks.processResources {
     properties(listOf("META-INF/mods.toml", "pack.mcmeta"),
@@ -101,7 +104,7 @@ tasks.processResources {
 }
 
 tasks.register<Copy>("buildAndCollect") {
-    from(tasks.remapJar.get().archiveFile, tasks.remapSourcesJar.get().archiveFile)
+    from(outputJar.get().archiveFile, outputSourcesJar.get().archiveFile)
     into(rootProject.layout.buildDirectory.file("libs/${mod.version}/$loader"))
     dependsOn(tasks.build)
 }
@@ -121,6 +124,6 @@ publisher {
     gameVersions = property("mod.mc_targets").toString().split(',')
     loaders = listOf(loader)
     curseEnvironment = common.mod.publish("mod_side")
-    artifact = tasks.remapJar.get()
-    addAdditionalFile(tasks.remapSourcesJar.get())
+    artifact = outputJar.get()
+    addAdditionalFile(outputSourcesJar.get())
 }

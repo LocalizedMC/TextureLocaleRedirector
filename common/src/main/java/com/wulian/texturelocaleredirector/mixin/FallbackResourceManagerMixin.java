@@ -23,9 +23,7 @@ public abstract class FallbackResourceManagerMixin implements ResourceManager {
     @Inject(method = "listResources", at = @At("RETURN"))
     private void onListResources(
             String startingPath,
-            Predicate<
-                    /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*Identifier *//*?}*/
-            > allowedPathPredicate,
+            /*? if >=26.3 {*/ ResourceManager.Selector /*?} else {*/ /*Predicate<Identifier> *//*?}*/selector,
             CallbackInfoReturnable<
                     Map<
                             /*? if >=1.21.11 {*/ Identifier /*?} else {*/ /*Identifier *//*?}*/,

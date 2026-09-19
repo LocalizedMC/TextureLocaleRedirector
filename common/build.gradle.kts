@@ -1,5 +1,5 @@
 plugins {
-    id("dev.architectury.loom")
+    id("dev.kikugie.loom-back-compat")
     id("architectury-plugin")
     id("com.gradleup.shadow")
 }
@@ -15,8 +15,6 @@ version = "${mod.version}+mc$minecraft"
 base.archivesName.set("${mod.id}-common")
 
 loom {
-    silentMojangMappingsLicense()
-
     decompilers {
         get("vineflower").apply { // Adds names to lambdas - useful for mixins
             options.put("mark-corresponding-synthetics", "1")
@@ -30,7 +28,7 @@ repositories {
 
 dependencies {
     minecraft("com.mojang:minecraft:$minecraft")
-    mappings(loom.officialMojangMappings())
+    loomx.applyMojangMappings()
     modImplementation("net.fabricmc:fabric-loader:${mod.dep("fabric_loader")}")
 }
 
@@ -38,7 +36,7 @@ java {
     withSourcesJar()
 
     val requiredJava = when {
-        stonecutter.current.parsed >= "21.1" -> JavaVersion.VERSION_25
+        stonecutter.current.parsed >= "26.3" -> JavaVersion.VERSION_25
         stonecutter.current.parsed >= "1.20.5" -> JavaVersion.VERSION_21
         else -> JavaVersion.VERSION_17
     }

@@ -1,6 +1,9 @@
 package com.wulian.texturelocaleredirector.mixin;
 
 import com.wulian.texturelocaleredirector.TranslatableTextureCache;
+//? if >=26.3 {
+import net.minecraft.client.Minecraft;
+//?}
 //? if >=1.21.1 {
 import net.minecraft.client.resources.language.ClientLanguage;
 //?}
@@ -23,7 +26,7 @@ public abstract class LanguageManagerMixin {
     private String currentCode;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void onInit(String languageCode /*? if >=1.21.1 {*/, Consumer<ClientLanguage> reloadCallback/*?}*/, CallbackInfo ci) {
+    private void onInit(/*? if >=26.3 {*/ Minecraft minecraft, /*?}*/String languageCode /*? if >=1.21.1 {*/, Consumer<ClientLanguage> reloadCallback/*?}*/, CallbackInfo ci) {
         TranslatableTextureCache.setCurrentLanguage(languageCode);
         TranslatableTextureCache.clear();
     }
