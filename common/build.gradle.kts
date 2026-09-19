@@ -1,7 +1,6 @@
 plugins {
     id("dev.kikugie.loom-back-compat")
     id("architectury-plugin")
-    id("com.gradleup.shadow")
 }
 
 architectury.common(stonecutter.tree.branches.mapNotNull {

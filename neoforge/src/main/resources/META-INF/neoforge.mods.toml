@@ -11,6 +11,7 @@ authors = "Wulian233, TexTrue"
 description = '''
 Support redirecting resource paths based on the game language to achieve multi-language texture loading. By extending the vanilla resource loading mechanism, it provides native multi-language texture support for resource packs, enabling localization of texture assets.
 '''
+iconFile = "assets/${id}/icon.png"
 logoFile = "assets/${id}/icon.png"
 
 [[dependencies.${id}]]

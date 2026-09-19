@@ -1,7 +1,7 @@
 plugins {
     id("dev.kikugie.stonecutter")
     id("dev.kikugie.loom-back-compat") apply false
-    id("architectury-plugin") version "3.5.169" apply false
+    id("architectury-plugin") version "3.5.170" apply false
     id("com.gradleup.shadow") version "9.+" apply false
     id("com.hypherionmc.modutils.modpublisher") version "2.2.3" apply false
 }
