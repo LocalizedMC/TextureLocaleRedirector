@@ -9,6 +9,11 @@ architectury.common(stonecutter.tree.branches.mapNotNull {
 })
 
 val minecraft: String = stonecutter.current.version
+val requiredJava = when {
+    stonecutter.current.parsed >= "26.1" -> JavaVersion.VERSION_25
+    stonecutter.current.parsed >= "1.20.5" -> JavaVersion.VERSION_21
+    else -> JavaVersion.VERSION_17
+}
 
 version = "${mod.version}+mc$minecraft"
 base.archivesName.set("${mod.id}-common")
@@ -34,12 +39,12 @@ dependencies {
 java {
     withSourcesJar()
 
-    val requiredJava = when {
-        stonecutter.current.parsed >= "26.3" -> JavaVersion.VERSION_25
-        stonecutter.current.parsed >= "1.20.5" -> JavaVersion.VERSION_21
-        else -> JavaVersion.VERSION_17
-    }
-
     targetCompatibility = requiredJava
     sourceCompatibility = requiredJava
+}
+
+tasks.processResources {
+    properties(listOf("texturelocaleredirector.mixins.json"),
+        "javaCompatibility" to "JAVA_${requiredJava.majorVersion}"
+    )
 }

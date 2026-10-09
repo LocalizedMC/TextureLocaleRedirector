@@ -2,6 +2,9 @@ modLoader = "javafml"
 loaderVersion = "*"
 license = "MIT"
 
+[[mixins]]
+config = "${id}.mixins.json"
+
 [[mods]]
 modId = "${id}"
 version = "${version}"
@@ -9,7 +12,7 @@ displayName = "${name}"
 displayURL = "https://github.com/LocalizedMC/TextureLocaleRedirector"
 authors = "Wulian233, TexTrue"
 description = '''
-Support redirecting resource paths based on the game language to achieve multi-language texture loading. By extending the vanilla resource loading mechanism, it provides native multi-language texture support for resource packs, enabling localization of texture assets.
+By extending the vanilla resource loading mechanism, it provides native multi-language texture support for resource packs, enabling localization of texture assets.
 '''
 logoFile = "assets/${id}/icon.png"
 

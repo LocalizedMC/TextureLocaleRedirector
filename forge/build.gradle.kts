@@ -37,6 +37,10 @@ configurations {
 }
 
 loom {
+    forge {
+        mixinConfig("${mod.id}.mixins.json")
+    }
+
     decompilers {
         get("vineflower").apply { // Adds names to lambdas - useful for mixins
             options.put("mark-corresponding-synthetics", "1")
@@ -68,7 +72,7 @@ java {
     withSourcesJar()
 
     val requiredJava = when {
-        stonecutter.current.parsed >= "26.3" -> JavaVersion.VERSION_25
+        stonecutter.current.parsed >= "26.1" -> JavaVersion.VERSION_25
         stonecutter.current.parsed >= "1.20.5" -> JavaVersion.VERSION_21
         else -> JavaVersion.VERSION_17
     }

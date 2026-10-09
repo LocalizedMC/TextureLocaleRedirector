@@ -47,6 +47,10 @@ loom {
         generateRunConfig.set(true)
         runDirectory.set(file("../../../run"))
         jvmArguments.add("-Dmixin.debug.export=true")
+        if (stonecutter.current.parsed >= "26.3") {
+            // Match Mojang's launch arguments: ShaderC native calls need more stack headroom.
+            jvmArguments.add("-XX:StackShadowPages=32")
+        }
     }
 }
 
@@ -69,7 +73,7 @@ java {
     withSourcesJar()
 
     val requiredJava = when {
-        stonecutter.current.parsed >= "26.3" -> JavaVersion.VERSION_25
+        stonecutter.current.parsed >= "26.1" -> JavaVersion.VERSION_25
         stonecutter.current.parsed >= "1.20.5" -> JavaVersion.VERSION_21
         else -> JavaVersion.VERSION_17
     }
