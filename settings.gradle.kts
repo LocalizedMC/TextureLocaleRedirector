@@ -13,8 +13,8 @@ pluginManagement {
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.8.2"
-    id("dev.kikugie.loom-back-compat") version "0.3"
+    id("dev.kikugie.stonecutter") version "0.10"
+    id("dev.kikugie.loom-back-compat") version "0.4.3"
 }
 
 gradle.beforeProject {
